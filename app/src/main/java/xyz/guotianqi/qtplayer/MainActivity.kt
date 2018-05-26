@@ -1,4 +1,4 @@
-package com.guotianqi.qingtingplayer
+package xyz.guotianqi.qtplayer
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -27,8 +27,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             this,
             drawer_layout,
             toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()

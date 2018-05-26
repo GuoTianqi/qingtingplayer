@@ -1,4 +1,4 @@
-package com.guotianqi.qingtingplayer
+package xyz.guotianqi.qtplayer
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

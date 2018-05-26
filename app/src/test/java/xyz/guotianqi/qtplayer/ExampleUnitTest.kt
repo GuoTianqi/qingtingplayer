@@ -1,4 +1,4 @@
-package com.guotianqi.qingtingplayer
+package xyz.guotianqi.qtplayer
 
 import org.junit.Test
 
