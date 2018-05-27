@@ -4,8 +4,12 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
+apply plugin: "androidx.navigation.safeargs"
+
 android {
-    compileSdkVersion 27
+    compileSdkVersion 'android-P'
     defaultConfig {
         applicationId "xyz.guotianqi.qtplayer"
         minSdkVersion 19
@@ -24,11 +28,49 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:1.0.0-alpha1"
+    implementation "com.google.android.material:material:1.0.0-alpha1"
+
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.0'
+
+    // Android KTX
+    implementation 'androidx.core:core-ktx:1.0.0-alpha1'
+
+    // LiveData + ViewModel
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
+
+    // Room
+    implementation "androidx.room:room-runtime:$room_version"
+    // optional - RxJava support for Room
+    implementation "androidx.room:room-rxjava2:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    testImplementation "androidx.room:room-testing:$room_version"
+
+    // Paging
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    // alternatively - without Android dependencies for testing
+    testImplementation "androidx.paging:paging-common:$paging_version"
+    // optional - RxJava support
+    implementation "androidx.paging:paging-rxjava2:$paging_version"
+
+    // Navigation
+    implementation "android.arch.navigation:navigation-fragment-ktx:$navigation_version" // use -ktx for Kotlin
+    implementation "android.arch.navigation:navigation-ui-ktx:$navigation_version" // use -ktx for Kotlin
+    // optional - Test helpers
+    androidTestImplementation "android.arch.navigation:navigation-testing-ktx:$navigation_version" // use -ktx for Kotlin
+
+//    // WorkManager
+//    implementation "android.arch.work:work-runtime-ktx:$work_version" // use -ktx for Kotlin
+//    // optional - Firebase JobDispatcher support
+//    implementation "android.arch.work:work-firebase:$work_version"
+//    // optional - Test helpers
+//    androidTestImplementation "android.arch.work:work-testing:$work_version"
+
+
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.1.0-alpha3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha3'
 }
