@@ -13,10 +13,11 @@ abstract class QtPlayerDb: RoomDatabase() {
 
     companion object {
         @Volatile private var INSTANCE: QtPlayerDb? = null
+        private val lock = Any()
 
         fun getInstance(context: Context): QtPlayerDb {
             if (INSTANCE == null) {
-                synchronized(QtPlayerDb::class) {
+                synchronized(lock) {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.applicationContext,
                                 QtPlayerDb::class.java, "QtPlayer.db")

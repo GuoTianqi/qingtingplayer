@@ -1,6 +1,7 @@
 package xyz.guotianqi.qtplayer
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -11,12 +12,30 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import xyz.guotianqi.qtplayer.data.Song
+import xyz.guotianqi.qtplayer.data.service.search.SearchSongListener
+import xyz.guotianqi.qtplayer.data.service.search.SearchTask
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var toolBar: Toolbar;
     private lateinit var fab: FloatingActionButton
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
+
+    private val searchSongListener = object : SearchSongListener {
+        override fun onSearching(searchingPath: String, percent: Int) {
+            Log.e("XXX", "searchingPath = $searchingPath, percent = $percent")
+        }
+
+        override fun onParsingSongInfo(songPath: String, percent: Int) {
+            Log.e("XXX", "songPath = $songPath, percent = $percent")
+        }
+
+        override fun onComplete(songs: List<Song>) {
+            Log.e("XXX", "total songs num = ${songs.size}")
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +48,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setSupportActionBar(toolBar)
 
+        SearchTask.getInstance().addSearchSongListener(searchSongListener)
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+
+            SearchTask.getInstance().start()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -45,6 +67,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
+    }
+
+    override fun onDestroy() {
+        SearchTask.getInstance().removeSearchSongListener(searchSongListener)
+        super.onDestroy()
     }
 
     override fun onBackPressed() {

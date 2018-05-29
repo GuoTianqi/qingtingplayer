@@ -11,11 +11,15 @@ import java.io.BufferedReader
 import java.io.FileReader
 import xyz.guotianqi.qtplayer.ext.removeFileExt
 import android.media.MediaMetadataRetriever
+import androidx.annotation.IntDef
+import androidx.annotation.MainThread
 import xyz.guotianqi.qtplayer.QtPlayerApplication
 import xyz.guotianqi.qtplayer.data.db.QtPlayerDb
+import java.util.concurrent.Executors
 
+class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
 
-class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, Any?, Any?>() {
+    private val searchSongListeners = mutableListOf<SearchSongListener>()
 
     private val songFiles = mutableListOf<File>()
 
@@ -27,9 +31,49 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
     // 保存解析过的lrc，避免再次解析
     private val lrcIdTagsMap = hashMapOf<String, LrcIdTags>()
 
-    override fun doInBackground(vararg params: Any?): Any? {
+    fun addSearchSongListener(searchSongListener: SearchSongListener) {
+        searchSongListeners.add(searchSongListener)
+    }
 
-        return null
+    fun removeSearchSongListener(searchSongListener: SearchSongListener) {
+        searchSongListeners.remove(searchSongListener)
+    }
+
+    @MainThread
+    fun start() {
+        if (status == Status.PENDING) {
+            executeOnExecutor(Executors.newSingleThreadExecutor())
+        }
+    }
+
+    override fun doInBackground(vararg params: Any?): List<Song> {
+        val songList = searchLocalSongs()
+        resetInstance()
+
+        return songList
+    }
+
+    override fun onProgressUpdate(vararg progressDatas: ProgressData) {
+        val progressData = progressDatas[0]
+        when(progressData.state) {
+            ProgressData.STATE_SEARCHING -> {
+                for (searchSongListener in searchSongListeners) {
+                    searchSongListener.onSearching(progressData.path, progressData.progress)
+                }
+            }
+
+            ProgressData.STATE_PARSING -> {
+                for (searchSongListener in searchSongListeners) {
+                    searchSongListener.onParsingSongInfo(progressData.path, progressData.progress)
+                }
+            }
+        }
+    }
+
+    override fun onPostExecute(songs: List<Song>) {
+        for (searchSongListener in searchSongListeners) {
+            searchSongListener.onComplete(songs)
+        }
     }
 
 
@@ -38,7 +82,7 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
      * @param scanningSongListener
      * @return
      */
-    fun searchLocalSongs(): MutableList<Song> {
+    private fun searchLocalSongs(): MutableList<Song> {
         songFiles.clear()
         allLrcs.clear()
         digitLrcs.clear()
@@ -81,7 +125,7 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
             startTime = endTime
         }
 
-        val songList = parseCreateSongs(songFiles)
+        val songList = parseAndCreateSongs(songFiles)
 
         if (DEBUG) {
             Log.v(TAG, "Match Lrc to Mp3 Time = " + (System.currentTimeMillis() - startTime))
@@ -161,7 +205,10 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
             }
 
             basePercentTmp += percentStep
-            searchSongListener?.onSearching(file.parent, basePercentTmp.toInt())
+
+            if (searchSongListeners.isNotEmpty()) {
+                publishProgress(ProgressData(ProgressData.STATE_SEARCHING, file.parent, (basePercentTmp + 0.5f).toInt()))
+            }
         }
     }
 
@@ -190,14 +237,11 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
     }
 
 
-    private fun parseCreateSongs(songFiles: List<File>): MutableList<Song> {
+    private fun parseAndCreateSongs(songFiles: List<File>): MutableList<Song> {
         lrcIdTagsMap.clear()
         val newSongList = mutableListOf<Song>()
         val mediaMetadataRetriever = MediaMetadataRetriever()
-        val oldSongList =
-            QtPlayerDb.getInstance(QtPlayerApplication.INSTANCE.applicationContext)
-                .songDao().getSongs()
-
+        val oldSongList = getOldSongList()
 
         val percentStep = 100f / songFiles.size
         var basePercent = 0f
@@ -206,7 +250,10 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
             val songFilePath = songFile.absolutePath
             val song = Song(songFilePath)
 
-            searchSongListener?.onParsingSongInfo(songFilePath, (basePercent + percentStep * i).toInt())
+            if (searchSongListeners.isNotEmpty()) {
+                publishProgress(ProgressData(ProgressData.STATE_PARSING,
+                        songFilePath, (basePercent + percentStep * i + 0.5f).toInt()))
+            }
 
             // 对比旧数据，避免再次解析
             var needContinue = false
@@ -231,13 +278,13 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
             mediaMetadataRetriever.setDataSource(songFile.absolutePath)
 
             song.songName =
-                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) ?: ""
             song.singerName =
-                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: ""
             song.album =
-                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM) ?: ""
             val albumArtist =
-                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+                    mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST) ?: ""
             val bitrate = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
             song.bitrate = bitrate?.toLong() ?: 0
             val duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -252,7 +299,7 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
             parseSongAndSingerName(songFile, song)
 
             if (DEBUG) {
-                Log.v(TAG, "mediaData: $song")
+                Log.v(TAG, "songInfo = $song")
             }
 
             // 过滤时长短的歌曲
@@ -352,7 +399,28 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
 
         mediaMetadataRetriever.release()
 
+        QtPlayerDb.getInstance(QtPlayerApplication.INSTANCE.applicationContext)
+                .songDao().insertSongs(newSongList)
+
         return newSongList
+    }
+
+    private fun getOldSongList(): List<Song> {
+        val songDao = QtPlayerDb.getInstance(QtPlayerApplication.INSTANCE.applicationContext)
+                .songDao();
+        val tmpSongList = songDao.getSongs()
+
+        val existSongList = mutableListOf<Song>()
+        for (song in tmpSongList) {
+            if (File(song.songPath).exists()) {
+                existSongList.add(song)
+            } else {
+                // 删除数据库记录
+                songDao.deleteSong(song)
+            }
+        }
+
+        return existSongList
     }
 
     private fun parseSongAndSingerName(songFile: File, song: Song) {
@@ -528,8 +596,20 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
         return lrcContent.substring(firstIndex + startStr.length, lastIndex)
     }
 
+    data class ProgressData(val state: Int, val path: String, val progress: Int) {
+        companion object {
+            const val STATE_SEARCHING = 0
+            const val STATE_PARSING = 1
+
+            @Retention(AnnotationRetention.SOURCE)
+            @IntDef(value = [STATE_SEARCHING, STATE_PARSING])
+            annotation class State
+        }
+    }
+
+
     companion object {
-        private val TAG = SearchTask::class.simpleName
+        private const val TAG = "SearchTask"
         private val DEBUG = BuildConfig.DEBUG
 
         /**
@@ -545,5 +625,21 @@ class SearchTask(val searchSongListener: SearchSongListener?): AsyncTask<Any?, A
 
         private const val SONG_DURATION_MIN = 60 * 1000
         private const val SONG_SIZE_MIN = 100 * 1024
+
+        @Volatile private var INSTANCE: SearchTask? = null
+
+        @Synchronized
+        fun getInstance(): SearchTask {
+            if (INSTANCE == null) {
+                INSTANCE = SearchTask()
+            }
+
+            return INSTANCE!!
+        }
+
+        @Synchronized
+        private fun resetInstance() {
+            INSTANCE = null
+        }
     }
 }
