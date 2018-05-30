@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
                 if (grantResults.isNotEmpty() &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    SearchTask.getInstance().start()
+                    SearchTask.getInstance().startTask()
                 } else {
                     toast("Not Granted")
                 }
