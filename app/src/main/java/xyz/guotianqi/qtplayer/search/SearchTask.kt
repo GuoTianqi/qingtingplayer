@@ -236,7 +236,6 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
         return false
     }
 
-
     private fun parseAndCreateSongs(songFiles: List<File>): MutableList<Song> {
         lrcIdTagsMap.clear()
         val newSongList = mutableListOf<Song>()
