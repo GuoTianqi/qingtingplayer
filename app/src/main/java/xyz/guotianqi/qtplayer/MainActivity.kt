@@ -1,6 +1,7 @@
 package xyz.guotianqi.qtplayer
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -20,6 +21,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import xyz.guotianqi.qtplayer.ext.toast
+import xyz.guotianqi.qtplayer.search.SearchSongActivity
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -58,7 +60,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()
-            requestReadExtStoragePermission()
+//            requestReadExtStoragePermission()
+
+            startActivity(Intent(this, SearchSongActivity::class.java))
         }
 
         val toggle = ActionBarDrawerToggle(
