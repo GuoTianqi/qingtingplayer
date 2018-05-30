@@ -1,20 +1,20 @@
 package xyz.guotianqi.qtplayer.data.service.search
 
+import android.media.MediaMetadataRetriever
 import android.os.AsyncTask
 import android.os.Environment
-import xyz.guotianqi.qtplayer.BuildConfig
+import android.support.annotation.IntDef
+import android.support.annotation.MainThread
 import android.text.TextUtils
 import android.util.Log
-import java.io.File
-import xyz.guotianqi.qtplayer.data.Song
-import java.io.BufferedReader
-import java.io.FileReader
-import xyz.guotianqi.qtplayer.ext.removeFileExt
-import android.media.MediaMetadataRetriever
-import androidx.annotation.IntDef
-import androidx.annotation.MainThread
+import xyz.guotianqi.qtplayer.BuildConfig
 import xyz.guotianqi.qtplayer.QtPlayerApplication
+import xyz.guotianqi.qtplayer.data.Song
 import xyz.guotianqi.qtplayer.data.db.QtPlayerDb
+import xyz.guotianqi.qtplayer.ext.removeFileExt
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
 import java.util.concurrent.Executors
 
 class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {

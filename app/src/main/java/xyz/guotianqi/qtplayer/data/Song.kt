@@ -1,11 +1,9 @@
 package xyz.guotianqi.qtplayer.data
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
 import xyz.guotianqi.qtplayer.ext.md5
-import java.security.MessageDigest
-import java.util.*
 
 @Entity(tableName = "songs")
 data class Song @JvmOverloads constructor(
@@ -18,6 +16,7 @@ data class Song @JvmOverloads constructor(
     @ColumnInfo(name = "bitrate") var bitrate: Long = 0,
     @ColumnInfo(name = "lrc_path") var lrcPath: String = "") {
 
-    @PrimaryKey @ColumnInfo(name = "id") var id: String = songPath.md5()
+    @PrimaryKey
+    @ColumnInfo(name = "id") var id: String = songPath.md5()
 
 }

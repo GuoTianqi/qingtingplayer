@@ -1,7 +1,7 @@
 package xyz.guotianqi.qtplayer.data
 
-import androidx.lifecycle.LiveData
-import androidx.room.*
+import android.arch.lifecycle.LiveData
+import android.arch.persistence.room.*
 
 @Dao
 interface SongsDao {
@@ -10,7 +10,8 @@ interface SongsDao {
 
     @Query("SELECT * FROM songs WHERE id = :songId") fun getSongById(songId: String): Song?
 
-    @Delete fun deleteSong(song: Song)
+    @Delete
+    fun deleteSong(song: Song)
     @Delete fun deleteSongs(vararg songs: Song)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertSongs(vararg songs: Song)
