@@ -4,7 +4,6 @@ import android.media.MediaMetadataRetriever
 import android.os.AsyncTask
 import android.os.Environment
 import android.support.annotation.IntDef
-import android.support.annotation.MainThread
 import android.text.TextUtils
 import android.util.Log
 import xyz.guotianqi.qtplayer.BuildConfig
@@ -17,7 +16,7 @@ import java.io.File
 import java.io.FileReader
 import java.util.concurrent.Executors
 
-class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
+class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>?>() {
 
     private val searchSongListeners = mutableListOf<SearchSongListener>()
 
@@ -39,14 +38,19 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
         searchSongListeners.remove(searchSongListener)
     }
 
-    @MainThread
-    fun start() {
+    @Synchronized
+    fun startTask() {
         if (status == Status.PENDING) {
             executeOnExecutor(Executors.newSingleThreadExecutor())
         }
     }
 
-    override fun doInBackground(vararg params: Any?): List<Song> {
+    fun cancelTask() {
+        resetInstance()
+        cancel(true)
+    }
+
+    override fun doInBackground(vararg params: Any?): List<Song>? {
         val songList = searchLocalSongs()
         resetInstance()
 
@@ -54,6 +58,10 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
     }
 
     override fun onProgressUpdate(vararg progressDatas: ProgressData) {
+        if (isCancelled) {
+            return
+        }
+
         val progressData = progressDatas[0]
         when(progressData.state) {
             ProgressData.STATE_SEARCHING -> {
@@ -70,9 +78,14 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
         }
     }
 
-    override fun onPostExecute(songs: List<Song>) {
-        for (searchSongListener in searchSongListeners) {
-            searchSongListener.onComplete(songs)
+    override fun onPostExecute(songs: List<Song>?) {
+        if (isCancelled) {
+            return
+        }
+        if (songs != null) {
+            for (searchSongListener in searchSongListeners) {
+                searchSongListener.onComplete(songs)
+            }
         }
     }
 
@@ -82,7 +95,7 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
      * @param scanningSongListener
      * @return
      */
-    private fun searchLocalSongs(): MutableList<Song> {
+    private fun searchLocalSongs(): MutableList<Song>? {
         songFiles.clear()
         allLrcs.clear()
         digitLrcs.clear()
@@ -104,6 +117,10 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
             }
         }
 
+        if (isCancelled) {
+            return null
+        }
+
         // 每个最外层搜索路径占的百分比，平均分配
         val dirPercent = 100f / searchPaths.size
         for (i in searchPaths.indices) {
@@ -123,6 +140,10 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
             val endTime = System.currentTimeMillis()
             Log.v(TAG, "Find Mp3 Lrc Time = " + (endTime - startTime))
             startTime = endTime
+        }
+
+        if (isCancelled) {
+            return null
         }
 
         val songList = parseAndCreateSongs(songFiles)
@@ -236,7 +257,7 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
         return false
     }
 
-    private fun parseAndCreateSongs(songFiles: List<File>): MutableList<Song> {
+    private fun parseAndCreateSongs(songFiles: List<File>): MutableList<Song>? {
         lrcIdTagsMap.clear()
         val newSongList = mutableListOf<Song>()
         val mediaMetadataRetriever = MediaMetadataRetriever()
@@ -245,6 +266,11 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>>() {
         val percentStep = 100f / songFiles.size
         var basePercent = 0f
         for (i in 0 until songFiles.size) {
+            if (isCancelled) {
+                mediaMetadataRetriever.release()
+                return null
+            }
+
             val songFile = songFiles[i]
             val songFilePath = songFile.absolutePath
             val song = Song(songFilePath)
