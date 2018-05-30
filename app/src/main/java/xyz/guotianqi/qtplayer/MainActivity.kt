@@ -6,8 +6,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import xyz.guotianqi.qtplayer.data.Song
-import xyz.guotianqi.qtplayer.data.service.search.SearchSongListener
-import xyz.guotianqi.qtplayer.data.service.search.SearchTask
+import xyz.guotianqi.qtplayer.search.SearchSongListener
+import xyz.guotianqi.qtplayer.search.SearchTask
 import android.content.pm.PackageManager
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
@@ -19,7 +19,6 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.widget.Toast
 import xyz.guotianqi.qtplayer.ext.toast
 
 

@@ -1,4 +1,4 @@
-package xyz.guotianqi.qtplayer.data.service.search
+package xyz.guotianqi.qtplayer.search
 
 import android.media.MediaMetadataRetriever
 import android.os.AsyncTask

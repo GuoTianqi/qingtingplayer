@@ -1,4 +1,4 @@
-package xyz.guotianqi.qtplayer.data.service.search
+package xyz.guotianqi.qtplayer.search
 
 /**
  * Lrc歌词文件ID标签
