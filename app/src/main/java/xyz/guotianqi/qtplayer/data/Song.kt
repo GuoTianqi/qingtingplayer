@@ -14,9 +14,6 @@ data class Song @JvmOverloads constructor(
     @ColumnInfo(name = "duration") var duration: Long = 0,
     @ColumnInfo(name = "size") var size: Long = 0,
     @ColumnInfo(name = "bitrate") var bitrate: Long = 0,
-    @ColumnInfo(name = "lrc_path") var lrcPath: String = "") {
-
-    @PrimaryKey
-    @ColumnInfo(name = "id") var id: String = songPath.md5()
-
+    @ColumnInfo(name = "lrc_path") var lrcPath: String = "",
+    @PrimaryKey @ColumnInfo(name = "id") var id:String = songPath.md5()) {
 }
