@@ -9,7 +9,7 @@ class SearchSongActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setTitle(R.string.page_title_search_song)
+        // setTitle(R.string.page_title_search_song)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

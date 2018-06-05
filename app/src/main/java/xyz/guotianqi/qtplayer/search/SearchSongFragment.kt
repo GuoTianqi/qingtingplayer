@@ -7,12 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import xyz.guotianqi.qtplayer.R
+import xyz.guotianqi.qtplayer.databinding.SearchSongFragmentBinding
 
 class SearchSongFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = SearchSongFragment()
-    }
+    private lateinit var viewDataBinding: SearchSongFragmentBinding
 
     private lateinit var viewModel: SearchSongViewModel
 
@@ -20,13 +18,20 @@ class SearchSongFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.search_song_fragment, container, false)
+        val root = inflater.inflate(R.layout.search_song_fragment, container, false)
+        viewDataBinding = SearchSongFragmentBinding.bind(root)
+
+        return root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(SearchSongViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewDataBinding.viewModel = viewModel
     }
 
+
+    companion object {
+        fun newInstance() = SearchSongFragment()
+    }
 }

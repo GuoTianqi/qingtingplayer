@@ -1,20 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<data>
+    <variable
+        name="viewModel"
+        type="xyz.guotianqi.qtplayer.search.SearchSongViewModel" />
+</data>
+
+<android.support.constraint.ConstraintLayout
     android:id="@+id/searchsong"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".search.SearchSongFragment">
 
-    <TextView
-        android:id="@+id/message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SearchSongFragment"
+    <ImageView
+        android:id="@+id/search_iv"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        app:srcCompat="@drawable/search_song_progress" />
+
+    <Button
+        android:id="@+id/search_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:text="@{viewModel.searchProgress}"
+        android:onClick="@{() -> viewModel.startSearch()}"
+        android:enabled="@{viewModel.searchEnable}"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/search_iv"
+        app:layout_constraintEnd_toEndOf="@+id/search_iv"
+        app:layout_constraintStart_toStartOf="@+id/search_iv"
+        app:layout_constraintTop_toTopOf="@+id/search_iv" />
+
+    <TextView
+        android:id="@+id/search_status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:text="@{viewModel.searchStatus}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_iv" />
+
+    <TextView
+        android:id="@+id/search_path_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="start"
+        android:gravity="center_horizontal"
+        android:text="@{viewModel.searchPath}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_status_text" />
 
 </android.support.constraint.ConstraintLayout>
+
+</layout>

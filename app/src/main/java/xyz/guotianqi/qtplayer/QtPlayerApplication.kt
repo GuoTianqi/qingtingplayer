@@ -1,7 +1,7 @@
 package xyz.guotianqi.qtplayer
 
 import android.app.Application
-import com.facebook.stetho.Stetho
+import android.support.v7.app.AppCompatDelegate
 
 class QtPlayerApplication: Application() {
     override fun onCreate() {
@@ -10,6 +10,7 @@ class QtPlayerApplication: Application() {
         INSTANCE = this
 
         Stetho.initializeWithDefaults(this)
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
 
     companion object {
