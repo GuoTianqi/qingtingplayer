@@ -25,7 +25,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.3"
-        app:srcCompat="@drawable/search_song_progress" />
+        app:animating="@{viewModel.searching}"
+        app:srcCompat="@drawable/search_song_progress_avd" />
 
     <Button
         android:id="@+id/search_btn"

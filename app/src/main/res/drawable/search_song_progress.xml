@@ -9,12 +9,16 @@
         android:fillColor="@color/colorPrimary"
         android:pathData="M12,12 m-10,0 a10,10 0 1 1 20,0 a10,10 0 1 1 -20,0"/>
 
-    <path
-        android:name="outerCircle"
-        android:strokeColor="@color/colorPrimary"
-        android:strokeWidth="1"
-        android:pathData="M12,12 m-11,0 a11,11 0 1 1 22,0 a11,11 0 1 1 -22,0"/>
-
+    <group
+        android:name="outerCircleGroup"
+        android:pivotX="12"
+        android:pivotY="12">
+        <path
+            android:name="outerCircle"
+            android:strokeColor="@color/colorPrimary"
+            android:strokeWidth="1"
+            android:pathData="M12,12 m-11,0 a11,11 0 1 1 22,0 a11,11 0 1 1 -22,0"/>
+    </group>
     <path
         android:name="checked"
         android:strokeAlpha="0"

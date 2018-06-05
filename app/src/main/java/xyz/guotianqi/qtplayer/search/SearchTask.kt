@@ -18,8 +18,6 @@ import java.util.concurrent.Executors
 
 class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>?>() {
 
-    private val searchSongListeners = mutableListOf<SearchSongListener>()
-
     private val songFiles = mutableListOf<File>()
 
     // 除了文件名是数字的所有lrc
@@ -632,7 +630,6 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>?>() {
         }
     }
 
-
     companion object {
         private const val TAG = "SearchTask"
         private val DEBUG = BuildConfig.DEBUG
@@ -650,6 +647,8 @@ class SearchTask: AsyncTask<Any?, SearchTask.ProgressData, List<Song>?>() {
 
         private const val SONG_DURATION_MIN = 60 * 1000
         private const val SONG_SIZE_MIN = 100 * 1024
+
+        private val searchSongListeners = mutableListOf<SearchSongListener>()
 
         @Volatile private var INSTANCE: SearchTask? = null
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/search_song_progress"
+    tools:ignore="NewApi">
+    <target
+        android:animation="@animator/search_song_progress"
+        android:name="outerCircle" />
+
+    <target
+        android:animation="@animator/search_song_progress_rotation"
+        android:name="outerCircleGroup" />
+</animated-vector>
