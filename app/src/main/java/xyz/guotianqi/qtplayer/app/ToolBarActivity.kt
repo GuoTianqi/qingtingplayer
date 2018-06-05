@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import xyz.guotianqi.qtplayer.R
 
-open class ToolBarActivity: AppCompatActivity() {
+abstract class ToolBarActivity: AppCompatActivity() {
     protected lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
